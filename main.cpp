@@ -19,6 +19,9 @@ using namespace std;
 class Node{
 private:
     int packno;
+    float iat;// inter arrival time 
+    float srt;// service time 
+    float qin,qout,sysin;// queue in time , queue out time , system out time
     Node* next;
 public:
     Node(){
@@ -92,7 +95,7 @@ public:
         }        
         return length;    
     }
-     void printQueue(){
+    void printQueue(){
         Node* temp;
         if(head==NULL){
             cout<<"EMPTY"<<endl;
@@ -120,17 +123,7 @@ public:
 int main(int argc, char** argv) {
 
     Queue q1;
-    q1.printQueue();
-    q1.pushQueue(1);
-    q1.pushQueue(6);
-    q1.pushQueue(9);
-    q1.pushQueue(10);
-    q1.pushQueue(14);
-    q1.printQueue();
-    cout<<"--"<<endl;
-    q1.popQueue();
-    q1.printQueue();
-    cout<<"--"<<endl;
+
     return 0;
 }
 
