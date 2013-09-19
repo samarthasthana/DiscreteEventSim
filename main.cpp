@@ -35,14 +35,16 @@ public:
         packno=val;
     }
     void setNext(Node* n){
-        next=n;
+        if(n==NULL)
+            next=NULL;
+        else
+            next=n;
     } 
 };
 
 class Queue{
 private:
     Node* head;
-    
 public:
     Queue(){
         head=NULL;        
@@ -60,7 +62,7 @@ public:
         }
         else{
             temp=head;
-            while(temp!=NULL){
+            while(temp->Next()!=NULL){
                 temp=temp->Next();
             }
             temp->setNext(leaf);
@@ -117,14 +119,18 @@ public:
 
 int main(int argc, char** argv) {
 
-    srand (time(NULL));
-    ofstream file;
-    file.open("Exponential.dat");
-    for (int i=0;i<10000;i++){
-        file<<genExpo(1.0)<<endl;        
-    }   
-    file.close();
-    cout<<"done";
+    Queue q1;
+    q1.printQueue();
+    q1.pushQueue(1);
+    q1.pushQueue(6);
+    q1.pushQueue(9);
+    q1.pushQueue(10);
+    q1.pushQueue(14);
+    q1.printQueue();
+    cout<<"--"<<endl;
+    q1.popQueue();
+    q1.printQueue();
+    cout<<"--"<<endl;
     return 0;
 }
 
