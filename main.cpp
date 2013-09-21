@@ -120,17 +120,22 @@ public:
 int main(int argc, char** argv) {
 
     float times=0.00; // initialize the time to zero
-    Queue q1;
-    int packet_max=10000;
+    Queue *q1;
+    q1=new Queue();
+    long packet_max=5000000;
     float lam1,lam2;
-    int packet=0; // initialize the packet number to zero
-    int popped;
+    long packet=0; // initialize the packet number to zero
+    long popped=0;
     float lastsysout=0.0,sim_time=0.0;
     int server=0; // 0 signifies available and 1 says not available
     float* iat;
     float* srt;
     float* qin;
     float *qout,*sysout;// create dynamic arrays for inter arrival time 
+    float *avgwait, *avgsys,*avgser;
+    int *avgnum;
+    ofstream file1;
+    file1.open("results.dat");
                                   // service time , queue in and out, system in and out
     cout<<"Enter the simulation time"<<endl;
     cin>>sim_time;
@@ -144,10 +149,25 @@ int main(int argc, char** argv) {
     qin= new float[packet_max];
     qout= new float[packet_max];
     sysout= new float[packet_max];
+    avgwait= new float[packet_max];
+    avgsys=new float[packet_max];
+    avgser=new float[packet_max];
+    avgnum=new int[packet_max];
+    for(int i=1;i<packet_max;i++){
+    iat[i]=0.0;
+    srt[i]=0.0;
+    qin[i]=0.0;
+    qout[i]=0.0;
+    sysout[i]=0.0;
+    avgwait[i]=0.0;
+    avgsys[i]=0.0;
+    avgser[i]=0.0;
+    avgnum[i]=0;
+    }
     packet_max--;
     srand (time(NULL));
-    while(times<=sim_time){
-        packet++;
+    while(times<=sim_time){        
+        packet++;        
         iat[packet]=genExpo(lam1);
         times=times+iat[packet];
         srt[packet]=genExpo(lam2);
@@ -156,39 +176,53 @@ int main(int argc, char** argv) {
                 server=0;
             }
         }
-        if(q1.lengthQueue()==0 ){            
+        if(q1->lengthQueue()==0 ){            
             if(server==0){ //both the queue and the server are free.
             qin[packet]=times;            
             qout[packet]=times;            
             sysout[packet]=qout[packet]+srt[packet];
-            lastsysout=sysout[packet];
+            lastsysout=sysout[packet];      
+            avgwait[packet]=(qout[packet]-qin[packet]);
+            avgsys[packet]=(sysout[packet]-qin[packet]);
+            avgser[packet]=(sysout[packet]-qout[packet]);
             server=1;
+            avgnum[packet]=q1->lengthQueue();
             }
             else{ // queue is free ,server is not free               
-               q1.pushQueue(packet);
+               q1->pushQueue(packet);
                qin[packet]=times;
+               avgnum[packet]=q1->lengthQueue();
             }
         }
         else{ // queue is not empty
             if(server==0){//queue is not free, server is free
-               q1.pushQueue(packet);
+               q1->pushQueue(packet);
                qin[packet]=times;
-               popped=q1.popQueue();
+               avgnum[packet]=q1->lengthQueue();
+               popped=q1->popQueue();
                qout[popped]=times;
                server=1;
                sysout[popped]=qout[popped]+srt[popped];
                lastsysout=sysout[packet];
+               avgwait[popped]=qout[popped]-qin[popped];
+               avgsys[popped]=(sysout[popped]-qin[popped]);
+               avgser[popped]=(sysout[popped]-qout[popped]);
             }
             else{ // queue and server are not free
-                q1.pushQueue(packet);
+                avgnum[packet]=q1->lengthQueue();
+                q1->pushQueue(packet);
                 qin[packet]=times; 
+               
             }     
         }       
     }
-    for(int i=0;i<=packet;i++){
-        cout<<"packet: "<<i<<" Qin :"<<qin[i]<<" Qout :"<<qout[i]<<" iat:"<<iat[i]<<" srt: "<<srt[i]<<" sysout:"<<sysout[i]<<endl;
+    file1<<"Packet \t Qin \t Qout \t IAT \t SRT \t SysOut \t AvgSys \t AvgWait \t AvgSer \t AvgNum \n";
+    for(int i=1;i<=packet;i++){
+        file1<<i<<"\t"<<qin[i]<<"\t"<<qout[i]<<"\t"<<iat[i]<<"\t"<<srt[i]<<"\t"<<sysout[i]<<"\t"<<avgsys[i]<<"\t"<<avgwait[i]<<"\t"<<avgser[i]<<"\t"<<avgnum[i]<<endl;
+//        file1<<"packet: "<<i<<" Qin :"<<qin[i]<<" Qout :"<<qout[i]<<" iat:"<<iat[i]<<" srt: "<<srt[i]<<" sysout:"<<sysout[i]<<endl;
+//        file1<<"AvgSRT"<<avgsrt[i]<<"\t AvgSys"<<avgsys[i]<<"\t AvgWait"<<avgwait[i]<<"\t Avg tot time"<<avgtot[i]<<"\t avgnum: "<<avgnum[i]<<endl;        
     }
-    
+    file1.close();
     return 0;
 }
 
