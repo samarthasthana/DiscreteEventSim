@@ -119,6 +119,7 @@ public:
 
 int main(int argc, char** argv) {
 
+    long dropped=0;
     float times=0.00; // initialize the time to zero
     Queue *q1;
     q1=new Queue();
@@ -209,9 +210,14 @@ int main(int argc, char** argv) {
                avgser[popped]=(sysout[popped]-qout[popped]);
             }
             else{ // queue and server are not free
+                if(q1->lengthQueue()<=20){
                 avgnum[packet]=q1->lengthQueue();
                 q1->pushQueue(packet);
                 qin[packet]=times; 
+                }
+                else{
+                  dropped++;  
+                }
                
             }     
         }       
@@ -220,8 +226,9 @@ int main(int argc, char** argv) {
     for(int i=1;i<=packet;i++){
         file1<<i<<"\t"<<qin[i]<<"\t"<<qout[i]<<"\t"<<iat[i]<<"\t"<<srt[i]<<"\t"<<sysout[i]<<"\t"<<avgsys[i]<<"\t"<<avgwait[i]<<"\t"<<avgser[i]<<"\t"<<avgnum[i]<<endl;
 //        file1<<"packet: "<<i<<" Qin :"<<qin[i]<<" Qout :"<<qout[i]<<" iat:"<<iat[i]<<" srt: "<<srt[i]<<" sysout:"<<sysout[i]<<endl;
-//        file1<<"AvgSRT"<<avgsrt[i]<<"\t AvgSys"<<avgsys[i]<<"\t AvgWait"<<avgwait[i]<<"\t Avg tot time"<<avgtot[i]<<"\t avgnum: "<<avgnum[i]<<endl;        
+//        file1<<"AvgSRT"<<avgsrt[i]<<"\t AvgSys"<<avgsys[i]<<"\t AvgWait"<<avgwait[i]<<"\t Avg tot time"<<avgtot[i]<<"\t avgnum: "<<avgnum[i]<<endl;               
     }
+     cout<<dropped;
     file1.close();
     return 0;
 }
